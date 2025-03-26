@@ -8,12 +8,13 @@ const {
 } = require('../controllers/applicationController');
 const authMiddleware = require('../middleware/auth');
 const roleMiddleware = require('../middleware/role');
+const upload = require('../middleware/upload');
 
-// Routes for job seekers
-router.post('/', authMiddleware, applyToJob);
+// For job seekers: use upload.single('resume') to process file uploads
+router.post('/', authMiddleware, upload.single('resume'), applyToJob);
 router.get('/', authMiddleware, getApplicationsForSeeker);
 
-// Routes for employees
+// For employees:
 router.get('/employee', authMiddleware, roleMiddleware(['employee']), getApplicationsForEmployee);
 router.put('/:id/status', authMiddleware, roleMiddleware(['employee']), updateApplicationStatus);
 

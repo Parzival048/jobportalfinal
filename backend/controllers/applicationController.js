@@ -2,23 +2,30 @@ const Application = require('../models/Application');
 const Job = require('../models/Job');
 
 exports.applyToJob = async (req, res) => {
-  try {
-    const { jobId, coverLetter } = req.body;
-    const job = await Job.findById(jobId);
-    if (!job) return res.status(404).json({ message: 'Job not found' });
-
-    const newApplication = new Application({
-      job: jobId,
-      seeker: req.user,
-      coverLetter,
-    });
-    await newApplication.save();
-    res.status(201).json(newApplication);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+    try {
+      const { jobId, coverLetter, personalDetails } = req.body;
+      
+      // Check if the job exists
+      const job = await Job.findById(jobId);
+      if (!job) return res.status(404).json({ message: 'Job not found' });
+  
+      // If a resume file was uploaded, its path is available as req.file.path
+      const resumeUrl = req.file ? req.file.path : '';
+  
+      const newApplication = new Application({
+        job: jobId,
+        seeker: req.user,
+        coverLetter,
+        personalDetails,
+        resumeUrl,
+      });
+      await newApplication.save();
+      res.status(201).json(newApplication);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
 
 exports.getApplicationsForSeeker = async (req, res) => {
   try {
